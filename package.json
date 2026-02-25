@@ -1,5 +1,6 @@
 {
 	"name": "steve-cli",
+	"version": "0.1.0",
 	"module": "src/index.ts",
 	"type": "module",
 	"private": true,
@@ -14,7 +15,10 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.4",
-		"@types/bun": "latest"
+		"@semantic-release/changelog": "latest",
+		"@semantic-release/git": "latest",
+		"@types/bun": "latest",
+		"conventional-changelog-conventionalcommits": "latest"
 	},
 	"peerDependencies": {
 		"typescript": "^5"
