@@ -1,9 +1,27 @@
+import { marked } from "marked";
+import { markedTerminal } from "marked-terminal";
+
 const GITHUB_REPO = "ssilve1989/personal-cli";
 const GITHUB_API = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`;
+
+// marked-terminal doesn't process inline tokens (bold) inside list items.
+// Also strip markdown links before parsing — terminal link rendering (text + URL) is noisy.
+const BOLD_RE = /\*\*(.+?)\*\*/gs;
+const MD_LINK_RE = /\[([^\]]+)\]\([^)]+\)/g;
+
+marked.use(markedTerminal({ showSectionPrefix: false }));
+
+export function renderNotes(notes: string): string {
+	const preprocessed = notes.replace(MD_LINK_RE, "$1");
+	return (marked.parse(preprocessed) as string)
+		.replace(BOLD_RE, "\x1b[1m$1\x1b[22m")
+		.trimEnd();
+}
 
 export interface ReleaseInfo {
 	version: string;
 	tag: string;
+	notes: string;
 }
 
 export async function getLatestRelease(): Promise<ReleaseInfo> {
@@ -15,10 +33,11 @@ export async function getLatestRelease(): Promise<ReleaseInfo> {
 		throw new Error(`GitHub API error: ${res.status} ${res.statusText}`);
 	}
 
-	const data = (await res.json()) as { tag_name: string };
+	const data = (await res.json()) as { tag_name: string; body: string };
 	const tag = data.tag_name;
 	const version = tag.replace(/^v/, "");
-	return { version, tag };
+	const notes = data.body ?? "";
+	return { version, tag, notes };
 }
 
 export function isUpdateAvailable(current: string, latest: string): boolean {

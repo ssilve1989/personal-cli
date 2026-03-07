@@ -9,6 +9,7 @@ import {
 	getLatestRelease,
 	getPlatformSlug,
 	isUpdateAvailable,
+	renderNotes,
 } from "../utils/update";
 
 export const update = new Command("update")
@@ -41,6 +42,10 @@ export const update = new Command("update")
 		spinner.stop(
 			`New version available: v${latest.version} (current: v${current})`,
 		);
+
+		if (latest.notes) {
+			prompts.note(renderNotes(latest.notes), "Release Notes");
+		}
 
 		if (opts.check) {
 			prompts.log.info(`Run \`scli update\` to install v${latest.version}.`);
