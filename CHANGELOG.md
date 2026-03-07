@@ -1,3 +1,9 @@
+## [0.3.0](https://github.com/ssilve1989/personal-cli/compare/v0.2.1...v0.3.0) (2026-03-07)
+
+### Features
+
+* **update:** display rendered release notes on update ([3e8de93](https://github.com/ssilve1989/personal-cli/commit/3e8de935155a0314d86853c9b9a519a16cc4256f))
+
 ## [0.2.1](https://github.com/ssilve1989/personal-cli/compare/v0.2.0...v0.2.1) (2026-03-06)
 
 ### Bug Fixes
