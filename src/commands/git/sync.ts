@@ -1,4 +1,4 @@
-import * as prompts from "@clack/prompts";
+import { intro, log, outro, spinner } from "@clack/prompts";
 import { Command } from "commander";
 import { getShellError } from "../../utils/errors";
 import { getCurrentBranch, getDefaultBranch } from "../../utils/git";
@@ -6,9 +6,9 @@ import { getCurrentBranch, getDefaultBranch } from "../../utils/git";
 export const sync = new Command("sync")
 	.description("Sync default branch and return to current branch")
 	.action(async () => {
-		prompts.intro("git sync");
+		intro("git sync");
 
-		const s = prompts.spinner();
+		const s = spinner();
 		try {
 			const defaultBranch = await getDefaultBranch();
 			const currentBranch = await getCurrentBranch();
@@ -28,10 +28,10 @@ export const sync = new Command("sync")
 				s.stop(`Back on ${currentBranch}`);
 			}
 
-			prompts.outro("Synced!");
+			outro("Synced!");
 		} catch (e: unknown) {
 			s.stop("Failed");
-			prompts.log.error(getShellError(e));
+			log.error(getShellError(e));
 			process.exit(1);
 		}
 	});

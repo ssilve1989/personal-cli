@@ -5,7 +5,7 @@ export async function getDefaultBranch(shell: Shell = Bun.$): Promise<string> {
 		const ref = await shell`git symbolic-ref refs/remotes/origin/HEAD`
 			.quiet()
 			.text();
-		return ref.trim().split("/").pop()!;
+		return ref.trim().split("/").at(-1) ?? "";
 	} catch {
 		// Fallback: check if main or master exists locally
 		const branches = await shell`git branch --list`.quiet().text();

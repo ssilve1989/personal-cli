@@ -1,4 +1,11 @@
-import * as prompts from "@clack/prompts";
+import {
+	cancel,
+	intro,
+	isCancel,
+	log,
+	multiselect,
+	outro,
+} from "@clack/prompts";
 import { Command } from "commander";
 
 export function parseLsofOutput(
@@ -35,7 +42,7 @@ export function filterOwnPid(
 	pids: { pid: number; label: string }[],
 	myPid: number,
 ): { pid: number; label: string }[] {
-	return pids.filter((p) => p.pid !== myPid && !isNaN(p.pid));
+	return pids.filter((p) => p.pid !== myPid && !Number.isNaN(p.pid));
 }
 
 export const nuke = new Command("nuke")
@@ -43,10 +50,10 @@ export const nuke = new Command("nuke")
 	.argument("<target>", "Port number or process name")
 	.option("-f, --force", "Kill all matches without prompting")
 	.action(async (target: string, opts: { force?: boolean }) => {
-		prompts.intro("nuke");
+		intro("nuke");
 
 		const port = parseInt(target, 10);
-		const isPort = !isNaN(port) && port >= 1 && port <= 65535;
+		const isPort = !Number.isNaN(port) && port >= 1 && port <= 65535;
 
 		let pids: { pid: number; label: string }[] = [];
 
@@ -63,7 +70,7 @@ export const nuke = new Command("nuke")
 		pids = filterOwnPid(pids, myPid);
 
 		if (pids.length === 0) {
-			prompts.log.warn(
+			log.warn(
 				isPort
 					? `No processes found on port ${port}.`
 					: `No processes matching "${target}".`,
@@ -76,30 +83,30 @@ export const nuke = new Command("nuke")
 		if (opts.force) {
 			toKill = pids.map((p) => p.pid);
 		} else {
-			const selected = await prompts.multiselect({
+			const selected = await multiselect({
 				message: "Select processes to kill",
 				options: pids.map((p) => ({ value: p.pid, label: p.label })),
 				required: true,
 			});
 
-			if (prompts.isCancel(selected)) {
-				prompts.cancel("Cancelled.");
+			if (isCancel(selected)) {
+				cancel("Cancelled.");
 				process.exit(0);
 			}
 
 			toKill = selected as number[];
 		}
 
-		for (const pid of toKill) {
-			try {
-				await Bun.$`kill -9 ${pid}`.quiet();
-				prompts.log.success(`Killed ${pid}`);
-			} catch {
-				prompts.log.error(`Failed to kill ${pid}`);
-			}
-		}
-
-		prompts.outro(
-			`Nuked ${toKill.length} process${toKill.length > 1 ? "es" : ""}.`,
+		await Promise.allSettled(
+			toKill.map(async (pid) => {
+				try {
+					await Bun.$`kill -9 ${pid}`.quiet();
+					log.success(`Killed ${pid}`);
+				} catch {
+					log.error(`Failed to kill ${pid}`);
+				}
+			}),
 		);
+
+		outro(`Nuked ${toKill.length} process${toKill.length > 1 ? "es" : ""}.`);
 	});

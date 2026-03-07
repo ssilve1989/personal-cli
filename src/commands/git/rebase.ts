@@ -1,4 +1,4 @@
-import * as prompts from "@clack/prompts";
+import { intro, log, outro, spinner } from "@clack/prompts";
 import { Command } from "commander";
 import { getShellError } from "../../utils/errors";
 import { ensureNotOnDefaultBranch } from "../../utils/git";
@@ -22,9 +22,9 @@ export const rebase = new Command("rebase")
 	.description("Rebase current branch on default branch and force push")
 	.option("--no-push", "Skip the force push step")
 	.action(async (opts: { push: boolean }) => {
-		prompts.intro("git rebase");
+		intro("git rebase");
 
-		const s = prompts.spinner();
+		const s = spinner();
 		try {
 			const { currentBranch, defaultBranch } = await ensureNotOnDefaultBranch();
 
@@ -42,7 +42,7 @@ export const rebase = new Command("rebase")
 				s.stop("Pushed");
 			}
 
-			prompts.outro("Done!");
+			outro("Done!");
 		} catch (e: unknown) {
 			s.stop("Failed");
 			const err = e as { message?: string; stderr?: { toString(): string } };
@@ -51,12 +51,12 @@ export const rebase = new Command("rebase")
 				stderrText?.includes("CONFLICT") ||
 				err.message?.includes("CONFLICT")
 			) {
-				prompts.log.error("Rebase conflict detected. Resolve manually:");
-				prompts.log.info("  git rebase --continue   (after resolving)");
-				prompts.log.info("  git rebase --abort       (to cancel)");
-				if (stderrText) prompts.log.info(stderrText);
+				log.error("Rebase conflict detected. Resolve manually:");
+				log.info("  git rebase --continue   (after resolving)");
+				log.info("  git rebase --abort       (to cancel)");
+				if (stderrText) log.info(stderrText);
 			} else {
-				prompts.log.error(getShellError(e));
+				log.error(getShellError(e));
 			}
 			process.exit(1);
 		}

@@ -1,4 +1,12 @@
-import * as prompts from "@clack/prompts";
+import {
+	cancel,
+	confirm,
+	intro,
+	isCancel,
+	log,
+	outro,
+	spinner,
+} from "@clack/prompts";
 import { Command } from "commander";
 import { getShellError } from "../../utils/errors";
 import { getCurrentBranch } from "../../utils/git";
@@ -8,27 +16,27 @@ export const deploy = new Command("deploy")
 	.argument("<branch>", "Target deploy branch")
 	.option("-f, --force", "Skip confirmation prompt")
 	.action(async (branch: string, opts: { force?: boolean }) => {
-		prompts.intro("git deploy");
+		intro("git deploy");
 
 		const sourceBranch = await getCurrentBranch();
 
 		if (branch === sourceBranch) {
-			prompts.log.error("Target branch cannot be the current branch.");
+			log.error("Target branch cannot be the current branch.");
 			process.exit(1);
 		}
 
 		if (!opts.force) {
-			const confirmed = await prompts.confirm({
+			const confirmed = await confirm({
 				message: `Reset ${branch} to ${sourceBranch} and force push?`,
 			});
 
-			if (prompts.isCancel(confirmed) || !confirmed) {
-				prompts.cancel("Cancelled.");
+			if (isCancel(confirmed) || !confirmed) {
+				cancel("Cancelled.");
 				process.exit(0);
 			}
 		}
 
-		const s = prompts.spinner();
+		const s = spinner();
 		try {
 			// Check if target branch exists locally
 			const exists =
@@ -51,10 +59,10 @@ export const deploy = new Command("deploy")
 			await Bun.$`git push --force-with-lease origin ${branch}`.quiet();
 			s.stop("Pushed");
 
-			prompts.outro("Deployed!");
+			outro("Deployed!");
 		} catch (e: unknown) {
 			s.stop("Failed");
-			prompts.log.error(getShellError(e));
+			log.error(getShellError(e));
 			process.exit(1);
 		} finally {
 			// Always return to source branch

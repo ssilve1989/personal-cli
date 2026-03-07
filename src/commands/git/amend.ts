@@ -1,4 +1,4 @@
-import * as prompts from "@clack/prompts";
+import { intro, log, outro, spinner } from "@clack/prompts";
 import { Command } from "commander";
 import { getShellError } from "../../utils/errors";
 import { getCurrentBranch } from "../../utils/git";
@@ -7,9 +7,9 @@ export const amend = new Command("amend")
 	.description("Stage tracked changes and amend the last commit")
 	.option("-p, --push", "Force push after amending")
 	.action(async (opts: { push?: boolean }) => {
-		prompts.intro("git amend");
+		intro("git amend");
 
-		const s = prompts.spinner();
+		const s = spinner();
 		try {
 			const status = await Bun.$`git status --porcelain`.quiet().text();
 			const trackedChanges = status
@@ -17,7 +17,7 @@ export const amend = new Command("amend")
 				.filter((l) => l.trim() && !l.startsWith("??"));
 
 			if (trackedChanges.length === 0) {
-				prompts.log.warn("No tracked changes to amend.");
+				log.warn("No tracked changes to amend.");
 				process.exit(0);
 			}
 
@@ -33,10 +33,10 @@ export const amend = new Command("amend")
 				s.stop("Pushed");
 			}
 
-			prompts.outro("Done!");
+			outro("Done!");
 		} catch (e: unknown) {
 			s.stop("Failed");
-			prompts.log.error(getShellError(e));
+			log.error(getShellError(e));
 			process.exit(1);
 		}
 	});

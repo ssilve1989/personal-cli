@@ -8,6 +8,7 @@ const GITHUB_API = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`
 // Also strip markdown links before parsing — terminal link rendering (text + URL) is noisy.
 const BOLD_RE = /\*\*(.+?)\*\*/gs;
 const MD_LINK_RE = /\[([^\]]+)\]\([^)]+\)/g;
+const VERSION_TAG_RE = /^v/;
 
 marked.use(markedTerminal({ showSectionPrefix: false }));
 
@@ -35,7 +36,7 @@ export async function getLatestRelease(): Promise<ReleaseInfo> {
 
 	const data = (await res.json()) as { tag_name: string; body: string };
 	const tag = data.tag_name;
-	const version = tag.replace(/^v/, "");
+	const version = tag.replace(VERSION_TAG_RE, "");
 	const notes = data.body ?? "";
 	return { version, tag, notes };
 }

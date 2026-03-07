@@ -1,7 +1,16 @@
-import * as prompts from "@clack/prompts";
+import {
+	cancel,
+	confirm,
+	intro,
+	isCancel,
+	log,
+	outro,
+	spinner,
+	text,
+} from "@clack/prompts";
 import { Command } from "commander";
 
-type Spinner = ReturnType<typeof prompts.spinner>;
+type Spinner = ReturnType<typeof spinner>;
 
 function getErrorMessage(e: unknown): string {
 	if (e instanceof Error) return e.message;
@@ -93,22 +102,22 @@ export const setup = new Command("setup")
 	.description("Bootstrap a new machine with tools and dotfiles")
 	.option("-f, --force", "Replace dotfiles entirely instead of additive patch")
 	.action(async (opts: { force?: boolean }) => {
-		prompts.intro("setup");
+		intro("setup");
 
-		const HOME = process.env["HOME"] ?? "/tmp";
+		const HOME = process.env.HOME ?? "/tmp";
 
 		// ── Step 1: Oh My Zsh ────────────────────────────────────────────────────
-		const installOmz = await prompts.confirm({
+		const installOmz = await confirm({
 			message: "Install Oh My Zsh?",
 		});
 
-		if (prompts.isCancel(installOmz)) {
-			prompts.cancel("Cancelled.");
+		if (isCancel(installOmz)) {
+			cancel("Cancelled.");
 			process.exit(0);
 		}
 
 		if (installOmz) {
-			const s = prompts.spinner();
+			const s = spinner();
 			s.start("Installing Oh My Zsh...");
 			try {
 				const omzDir = Bun.file(`${HOME}/.oh-my-zsh`);
@@ -124,17 +133,17 @@ export const setup = new Command("setup")
 		}
 
 		// ── Step 2: mise ─────────────────────────────────────────────────────────
-		const installMise = await prompts.confirm({
+		const installMise = await confirm({
 			message: "Install mise?",
 		});
 
-		if (prompts.isCancel(installMise)) {
-			prompts.cancel("Cancelled.");
+		if (isCancel(installMise)) {
+			cancel("Cancelled.");
 			process.exit(0);
 		}
 
 		if (installMise) {
-			const s = prompts.spinner();
+			const s = spinner();
 			s.start("Installing mise...");
 			try {
 				const miseCheck = await Bun.$`which mise`.nothrow().quiet();
@@ -157,17 +166,17 @@ export const setup = new Command("setup")
 		}
 
 		// ── Step 3: .zshrc ───────────────────────────────────────────────────────
-		const configureZshrc = await prompts.confirm({
+		const configureZshrc = await confirm({
 			message: "Configure .zshrc?",
 		});
 
-		if (prompts.isCancel(configureZshrc)) {
-			prompts.cancel("Cancelled.");
+		if (isCancel(configureZshrc)) {
+			cancel("Cancelled.");
 			process.exit(0);
 		}
 
 		if (configureZshrc) {
-			const s = prompts.spinner();
+			const s = spinner();
 			s.start("Writing .zshrc managed section...");
 			try {
 				const zshrcPath = `${HOME}/.zshrc`;
@@ -212,17 +221,17 @@ export const setup = new Command("setup")
 		}
 
 		// ── Step 4: .vimrc ───────────────────────────────────────────────────────
-		const configureVimrc = await prompts.confirm({
+		const configureVimrc = await confirm({
 			message: "Configure .vimrc?",
 		});
 
-		if (prompts.isCancel(configureVimrc)) {
-			prompts.cancel("Cancelled.");
+		if (isCancel(configureVimrc)) {
+			cancel("Cancelled.");
 			process.exit(0);
 		}
 
 		if (configureVimrc) {
-			const s = prompts.spinner();
+			const s = spinner();
 			s.start("Writing .vimrc managed section...");
 			try {
 				const vimrcPath = `${HOME}/.vimrc`;
@@ -263,12 +272,12 @@ export const setup = new Command("setup")
 		}
 
 		// ── Step 5: Global git config ─────────────────────────────────────────────
-		const configureGit = await prompts.confirm({
+		const configureGit = await confirm({
 			message: "Configure global git settings?",
 		});
 
-		if (prompts.isCancel(configureGit)) {
-			prompts.cancel("Cancelled.");
+		if (isCancel(configureGit)) {
+			cancel("Cancelled.");
 			process.exit(0);
 		}
 
@@ -278,32 +287,32 @@ export const setup = new Command("setup")
 					.nothrow()
 					.quiet();
 				if (gitNameCheck.exitCode === 0) {
-					prompts.log.info(
+					log.info(
 						`Git user.name already set to: ${gitNameCheck.stdout.toString().trim()}`,
 					);
 				}
 
-				const name = await prompts.text({
+				const name = await text({
 					message: "Git user.name",
 					placeholder: "Your Name",
 				});
 
-				if (prompts.isCancel(name)) {
-					prompts.cancel("Cancelled.");
+				if (isCancel(name)) {
+					cancel("Cancelled.");
 					process.exit(0);
 				}
 
-				const email = await prompts.text({
+				const email = await text({
 					message: "Git user.email",
 					placeholder: "you@example.com",
 				});
 
-				if (prompts.isCancel(email)) {
-					prompts.cancel("Cancelled.");
+				if (isCancel(email)) {
+					cancel("Cancelled.");
 					process.exit(0);
 				}
 
-				const s = prompts.spinner();
+				const s = spinner();
 				s.start("Configuring git...");
 				try {
 					await Bun.$`git config --global user.name ${name}`.quiet();
@@ -316,9 +325,9 @@ export const setup = new Command("setup")
 					s.stop(`Failed to configure git: ${getErrorMessage(e)}`);
 				}
 			} catch (e) {
-				prompts.log.error(`Git config step failed: ${getErrorMessage(e)}`);
+				log.error(`Git config step failed: ${getErrorMessage(e)}`);
 			}
 		}
 
-		prompts.outro("Setup complete! Restart your shell or run: source ~/.zshrc");
+		outro("Setup complete! Restart your shell or run: source ~/.zshrc");
 	});

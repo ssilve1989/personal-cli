@@ -1,4 +1,4 @@
-import * as prompts from "@clack/prompts";
+import { cancel, intro, isCancel, multiselect } from "@clack/prompts";
 import { Command } from "commander";
 import { getShellError } from "../../utils/errors";
 
@@ -48,16 +48,16 @@ export const prune = new Command("prune")
 		if (opts.force) {
 			toDelete = filtered;
 		} else {
-			prompts.intro("git branch prune");
+			intro("git branch prune");
 
-			const selected = await prompts.multiselect({
+			const selected = await multiselect({
 				message: `Select branches to delete (current: ${currentBranch})`,
 				options: filtered.map((b) => ({ value: b, label: b })),
 				required: true,
 			});
 
-			if (prompts.isCancel(selected)) {
-				prompts.cancel("Cancelled.");
+			if (isCancel(selected)) {
+				cancel("Cancelled.");
 				process.exit(0);
 			}
 
@@ -69,14 +69,16 @@ export const prune = new Command("prune")
 			return;
 		}
 
-		for (const branch of toDelete) {
-			try {
-				await Bun.$`git branch -D ${branch}`.quiet();
-				console.log(`  Deleted ${branch}`);
-			} catch (e: unknown) {
-				console.error(`  Failed to delete ${branch}: ${getShellError(e)}`);
-			}
-		}
+		await Promise.allSettled(
+			toDelete.map(async (branch) => {
+				try {
+					await Bun.$`git branch -D ${branch}`.quiet();
+					console.log(`  Deleted ${branch}`);
+				} catch (e: unknown) {
+					console.error(`  Failed to delete ${branch}: ${getShellError(e)}`);
+				}
+			}),
+		);
 
 		console.log(
 			`\nPruned ${toDelete.length} branch${toDelete.length > 1 ? "es" : ""}.`,

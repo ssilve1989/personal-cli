@@ -1,6 +1,15 @@
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
-import * as prompts from "@clack/prompts";
+import {
+	cancel,
+	confirm,
+	intro,
+	isCancel,
+	log,
+	outro,
+	select,
+	spinner,
+} from "@clack/prompts";
 import { Command } from "commander";
 
 export type ProjectConfig = {
@@ -169,6 +178,7 @@ export function generateReleaseRc(): string {
 				{
 					assets: ["CHANGELOG.md", "package.json"],
 					message:
+						// biome-ignore lint/suspicious/noTemplateCurlyInString: semantic-release template syntax
 						"chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
 				},
 			],
@@ -279,9 +289,9 @@ export const newProject = new Command("new")
 	.description("Scaffold a new TypeScript project")
 	.argument("<name>", "Name for the new project (used as directory name)")
 	.action(async (name: string) => {
-		prompts.intro("project new");
+		intro("project new");
 
-		const pm = await prompts.select({
+		const pm = await select({
 			message: "Package manager",
 			options: [
 				{ value: "bun", label: "Bun" },
@@ -289,12 +299,12 @@ export const newProject = new Command("new")
 			],
 		});
 
-		if (prompts.isCancel(pm)) {
-			prompts.cancel("Cancelled.");
+		if (isCancel(pm)) {
+			cancel("Cancelled.");
 			process.exit(0);
 		}
 
-		const runtime = await prompts.select({
+		const runtime = await select({
 			message: "Runtime",
 			options: [
 				{ value: "bun", label: "Bun" },
@@ -302,18 +312,18 @@ export const newProject = new Command("new")
 			],
 		});
 
-		if (prompts.isCancel(runtime)) {
-			prompts.cancel("Cancelled.");
+		if (isCancel(runtime)) {
+			cancel("Cancelled.");
 			process.exit(0);
 		}
 
-		const workspaces = await prompts.confirm({
+		const workspaces = await confirm({
 			message: "Enable workspaces?",
 			initialValue: false,
 		});
 
-		if (prompts.isCancel(workspaces)) {
-			prompts.cancel("Cancelled.");
+		if (isCancel(workspaces)) {
+			cancel("Cancelled.");
 			process.exit(0);
 		}
 
@@ -324,7 +334,7 @@ export const newProject = new Command("new")
 			workspaces,
 		};
 
-		const s = prompts.spinner();
+		const s = spinner();
 		s.start(`Scaffolding ${name}...`);
 
 		try {
@@ -387,11 +397,11 @@ export const newProject = new Command("new")
 		} catch (e: unknown) {
 			const err = e as { message?: string; stderr?: { toString(): string } };
 			s.stop("Failed");
-			prompts.log.error(
+			log.error(
 				err.stderr?.toString().trim() || err.message || "Unknown error",
 			);
 			process.exit(1);
 		}
 
-		prompts.outro(`Project created! cd ${name} to get started.`);
+		outro(`Project created! cd ${name} to get started.`);
 	});
