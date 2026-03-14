@@ -138,7 +138,7 @@ export function generateBiomeJson(): string {
 `;
 }
 
-export function generateLefthookYml(config: ProjectConfig): string {
+export function generateLefthookYml(config: Pick<ProjectConfig, "pm">): string {
 	const dlxCmd = config.pm === "bun" ? "bunx --bun" : "pnpm dlx";
 	return `pre-commit:
   commands:
@@ -188,7 +188,7 @@ export function generateReleaseRc(): string {
 	return `${JSON.stringify(releaserc, null, "\t")}\n`;
 }
 
-export function generateCiYml(config: ProjectConfig): string {
+export function generateCiYml(config: Pick<ProjectConfig, "pm">): string {
 	const installCmd = config.pm === "bun" ? "bun install" : "pnpm install";
 	const lintCmd = config.pm === "bun" ? "bun run lint:ci" : "pnpm run lint:ci";
 	const testCmd = config.pm === "bun" ? "bun test" : "pnpm test";
@@ -228,7 +228,7 @@ jobs:
 `;
 }
 
-export function generateReleaseYml(config: ProjectConfig): string {
+export function generateReleaseYml(config: Pick<ProjectConfig, "pm">): string {
 	const installCmd = config.pm === "bun" ? "bun install" : "pnpm install";
 	const lintCmd = config.pm === "bun" ? "bun run lint:ci" : "pnpm run lint:ci";
 	const testCmd = config.pm === "bun" ? "bun test" : "pnpm test";

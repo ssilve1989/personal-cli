@@ -12,6 +12,7 @@ mock.module("@clack/prompts", () => ({
 	confirm: mock(async () => true),
 	multiselect: mock(async () => []),
 	text: mock(async () => ""),
+	select: mock(async () => ""),
 	isCancel: mock(() => false),
 	log: {
 		info: mock(() => {}),
