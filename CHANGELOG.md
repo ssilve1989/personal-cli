@@ -1,3 +1,14 @@
+## [0.4.0](https://github.com/ssilve1989/scli/compare/v0.3.0...v0.4.0) (2026-03-14)
+
+### Features
+
+* **project:** add `project add <feature>` subcommand ([45d4ebb](https://github.com/ssilve1989/scli/commit/45d4ebb365569440772a43e62bba463cb15c311b))
+* **project:** use mise for CI tool management in scaffold ([80122d0](https://github.com/ssilve1989/scli/commit/80122d077f66ed9bc5926ab84a3fdd432031bf88))
+
+### Bug Fixes
+
+* **types:** replace @types/marked-terminal with correct local declaration ([b0318d0](https://github.com/ssilve1989/scli/commit/b0318d0876bb953a2300891f189ba82ca6f92544))
+
 ## [0.3.0](https://github.com/ssilve1989/personal-cli/compare/v0.2.1...v0.3.0) (2026-03-07)
 
 ### Features
