@@ -1,3 +1,9 @@
+## [0.5.0](https://github.com/ssilve1989/scli/compare/v0.4.1...v0.5.0) (2026-03-17)
+
+### Features
+
+* **git:** add worktree subcommand ([3d19d74](https://github.com/ssilve1989/scli/commit/3d19d7422d349c89f0ab0aa4006a46255f070317))
+
 ## [0.4.1](https://github.com/ssilve1989/scli/compare/v0.4.0...v0.4.1) (2026-03-17)
 
 ### Bug Fixes
