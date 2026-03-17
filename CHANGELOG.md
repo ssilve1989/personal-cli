@@ -1,3 +1,9 @@
+## [0.4.1](https://github.com/ssilve1989/scli/compare/v0.4.0...v0.4.1) (2026-03-17)
+
+### Bug Fixes
+
+* **project:** add @semantic-release/npm with npmPublish disabled to releaserc ([d61a64a](https://github.com/ssilve1989/scli/commit/d61a64ab46c9807326347a8217ace2dd8ffe29d7))
+
 ## [0.4.0](https://github.com/ssilve1989/scli/compare/v0.3.0...v0.4.0) (2026-03-14)
 
 ### Features
