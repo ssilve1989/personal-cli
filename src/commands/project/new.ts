@@ -304,6 +304,30 @@ export function generateRenovateJson(): string {
 	return `${JSON.stringify(config, null, "\t")}\n`;
 }
 
+export function generateRenovateYml(): string {
+	return `name: Renovate
+
+on:
+  schedule:
+    - cron: '0 14 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+      - uses: renovatebot/github-action@abd08c7549b2a864af5df4a2e369c43f035a6a9d # v46.1.5
+        with:
+          token: \${{ secrets.RENOVATE_TOKEN }}
+        env:
+          RENOVATE_REPOSITORIES: \${{ github.repository }}
+`;
+}
+
 export function generatePnpmWorkspace(): string {
 	return `packages:\n  - "packages/*"\n`;
 }

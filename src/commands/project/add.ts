@@ -17,6 +17,7 @@ import {
 	generateReleaseRc,
 	generateReleaseYml,
 	generateRenovateJson,
+	generateRenovateYml,
 	type ProjectConfig,
 } from "./new";
 
@@ -90,11 +91,21 @@ async function addStandardRelease(
 }
 
 async function addRenovate(_config: AddConfig, cwd: string): Promise<void> {
-	const path = join(cwd, "renovate.json");
-	if (await Bun.file(path).exists()) {
+	const renovatePath = join(cwd, "renovate.json");
+	const workflowsDir = join(cwd, ".github", "workflows");
+	const workflowPath = join(workflowsDir, "renovate.yml");
+
+	if (await Bun.file(renovatePath).exists()) {
 		log.warn("renovate.json already exists — skipped");
 	} else {
-		await Bun.write(path, generateRenovateJson());
+		await Bun.write(renovatePath, generateRenovateJson());
+	}
+
+	if (await Bun.file(workflowPath).exists()) {
+		log.warn(".github/workflows/renovate.yml already exists — skipped");
+	} else {
+		mkdirSync(workflowsDir, { recursive: true });
+		await Bun.write(workflowPath, generateRenovateYml());
 	}
 }
 
