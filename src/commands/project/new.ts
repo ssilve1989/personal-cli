@@ -274,6 +274,36 @@ jobs:
 `;
 }
 
+export function generateRenovateJson(): string {
+	const config = {
+		$schema: "https://docs.renovatebot.com/renovate-schema.json",
+		extends: ["config:best-practices", ":preserveSemverRanges"],
+		schedule: ["before 9am on monday"],
+		minimumReleaseAge: "5 days",
+		prConcurrentLimit: 10,
+		ignorePaths: ["Dockerfile"],
+		packageRules: [
+			{
+				description: "Automerge minor/patch/digest updates",
+				matchUpdateTypes: ["minor", "patch", "digest"],
+				automerge: true,
+				automergeType: "pr",
+			},
+			{
+				description: "Commitlint packages",
+				groupName: "commitlint",
+				matchPackageNames: ["/^@commitlint/"],
+			},
+			{
+				description: "GitHub Actions",
+				matchManagers: ["github-actions"],
+				groupName: "github-actions",
+			},
+		],
+	};
+	return `${JSON.stringify(config, null, "\t")}\n`;
+}
+
 export function generatePnpmWorkspace(): string {
 	return `packages:\n  - "packages/*"\n`;
 }

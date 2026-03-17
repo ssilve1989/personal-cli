@@ -16,12 +16,13 @@ import {
 	generateLefthookYml,
 	generateReleaseRc,
 	generateReleaseYml,
+	generateRenovateJson,
 	type ProjectConfig,
 } from "./new";
 
 type AddConfig = Pick<ProjectConfig, "pm">;
 
-type FeatureName = "lefthook" | "standard-release";
+type FeatureName = "lefthook" | "standard-release" | "renovate";
 
 type FeatureHandler = {
 	description: string;
@@ -88,6 +89,15 @@ async function addStandardRelease(
 	}
 }
 
+async function addRenovate(_config: AddConfig, cwd: string): Promise<void> {
+	const path = join(cwd, "renovate.json");
+	if (await Bun.file(path).exists()) {
+		log.warn("renovate.json already exists — skipped");
+	} else {
+		await Bun.write(path, generateRenovateJson());
+	}
+}
+
 const features: Record<FeatureName, FeatureHandler> = {
 	lefthook: {
 		description: "Git hooks via lefthook",
@@ -96,6 +106,10 @@ const features: Record<FeatureName, FeatureHandler> = {
 	"standard-release": {
 		description: "Semantic versioning with semantic-release and commitlint",
 		run: addStandardRelease,
+	},
+	renovate: {
+		description: "Automated dependency updates via Renovate",
+		run: addRenovate,
 	},
 };
 
