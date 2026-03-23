@@ -59,11 +59,23 @@ async function addLefthook(config: AddConfig, cwd: string): Promise<void> {
 		await Bun.write(pkgPath, `${JSON.stringify(pkg, null, "\t")}\n`);
 	}
 
+	const commitlintPath = join(cwd, ".commitlintrc.json");
+	if (await Bun.file(commitlintPath).exists()) {
+		log.warn(".commitlintrc.json already exists — skipped");
+	} else {
+		await Bun.write(commitlintPath, generateCommitlintRc());
+	}
+
+	const commitlintPackages = [
+		"@commitlint/cli",
+		"@commitlint/config-conventional",
+	];
+
 	if (config.pm === "bun") {
-		await Bun.$`bun add -d lefthook`.cwd(cwd).quiet();
+		await Bun.$`bun add -d lefthook ${commitlintPackages}`.cwd(cwd).quiet();
 		await Bun.$`bunx lefthook install`.cwd(cwd).quiet();
 	} else {
-		await Bun.$`pnpm add -D lefthook`.cwd(cwd).quiet();
+		await Bun.$`pnpm add -D lefthook ${commitlintPackages}`.cwd(cwd).quiet();
 		await Bun.$`pnpm dlx lefthook install`.cwd(cwd).quiet();
 	}
 }
