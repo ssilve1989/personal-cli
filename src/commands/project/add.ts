@@ -13,6 +13,7 @@ import { Command } from "commander";
 import { getShellError } from "../../utils/errors";
 import {
 	generateCommitlintRc,
+	generateInstallHooksScript,
 	generateLefthookYml,
 	generateReleaseRc,
 	generateReleaseYml,
@@ -31,11 +32,31 @@ type FeatureHandler = {
 };
 
 async function addLefthook(config: AddConfig, cwd: string): Promise<void> {
-	const path = join(cwd, "lefthook.yml");
-	if (await Bun.file(path).exists()) {
+	const lefthookPath = join(cwd, "lefthook.yml");
+	if (await Bun.file(lefthookPath).exists()) {
 		log.warn("lefthook.yml already exists — skipped");
 	} else {
-		await Bun.write(path, generateLefthookYml(config));
+		await Bun.write(lefthookPath, generateLefthookYml(config));
+	}
+
+	const scriptsDir = join(cwd, "scripts");
+	const installHooksPath = join(scriptsDir, "install-hooks.js");
+	if (await Bun.file(installHooksPath).exists()) {
+		log.warn("scripts/install-hooks.js already exists — skipped");
+	} else {
+		mkdirSync(scriptsDir, { recursive: true });
+		await Bun.write(installHooksPath, generateInstallHooksScript());
+	}
+
+	const pkgPath = join(cwd, "package.json");
+	if (await Bun.file(pkgPath).exists()) {
+		const pkg = (await Bun.file(pkgPath).json()) as {
+			scripts?: Record<string, string>;
+			[key: string]: unknown;
+		};
+		pkg.scripts ??= {};
+		pkg.scripts.prepare = "node scripts/install-hooks.js";
+		await Bun.write(pkgPath, `${JSON.stringify(pkg, null, "\t")}\n`);
 	}
 
 	if (config.pm === "bun") {

@@ -36,13 +36,12 @@ export function generateMiseToml(config: ProjectConfig): string {
 }
 
 export function generatePackageJson(config: ProjectConfig): string {
-	const runCmd = config.pm === "bun" ? "bun" : "pnpm";
 	const testCmd = config.pm === "bun" ? "bun test" : "pnpm test";
 
 	const scripts: Record<string, string> = {
 		"lint:ci": "biome ci --diagnostic-level=error",
 		test: testCmd,
-		prepare: `${runCmd} lefthook install`,
+		prepare: "node scripts/install-hooks.js",
 	};
 
 	const devDependencies: Record<string, string> = {
@@ -328,6 +327,29 @@ jobs:
 `;
 }
 
+export function generateInstallHooksScript(): string {
+	return `#!/usr/bin/env node
+
+// Only install git hooks if we're in a git repository
+// This prevents hook installation in Docker containers and CI environments
+import { execSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+
+const isGitRepo = existsSync('.git');
+
+if (isGitRepo) {
+  try {
+    execSync('lefthook install', { stdio: 'inherit' });
+  } catch (error) {
+    console.error('Failed to install lefthook hooks:', error);
+    process.exit(1);
+  }
+} else {
+  console.log('Skipping lefthook install (not in a git repository)');
+}
+`;
+}
+
 export function generatePnpmWorkspace(): string {
 	return `packages:\n  - "packages/*"\n`;
 }
@@ -397,6 +419,7 @@ export const newProject = new Command("new")
 
 			// Create directory structure
 			mkdirSync(join(root, "src"), { recursive: true });
+			mkdirSync(join(root, "scripts"), { recursive: true });
 			mkdirSync(join(root, ".github", "workflows"), { recursive: true });
 			if (config.workspaces) {
 				mkdirSync(join(root, "packages"), { recursive: true });
@@ -410,6 +433,10 @@ export const newProject = new Command("new")
 				Bun.write(join(root, "biome.json"), generateBiomeJson()),
 				Bun.write(join(root, ".gitignore"), generateGitignore()),
 				Bun.write(join(root, "lefthook.yml"), generateLefthookYml(config)),
+				Bun.write(
+					join(root, "scripts", "install-hooks.js"),
+					generateInstallHooksScript(),
+				),
 				Bun.write(join(root, ".commitlintrc.json"), generateCommitlintRc()),
 				Bun.write(join(root, ".releaserc.json"), generateReleaseRc()),
 				Bun.write(

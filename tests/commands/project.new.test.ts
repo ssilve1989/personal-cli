@@ -128,12 +128,12 @@ describe("generatePackageJson", () => {
 		expect(pkg.name).toBe("my-app");
 	});
 
-	test("prepare script uses correct package manager", () => {
+	test("prepare script uses install-hooks.js", () => {
 		const bunPkg = JSON.parse(generatePackageJson(bunConfig));
-		expect(bunPkg.scripts.prepare).toContain("bun lefthook install");
+		expect(bunPkg.scripts.prepare).toBe("node scripts/install-hooks.js");
 
 		const pnpmPkg = JSON.parse(generatePackageJson(pnpmNodeConfig));
-		expect(pnpmPkg.scripts.prepare).toContain("pnpm lefthook install");
+		expect(pnpmPkg.scripts.prepare).toBe("node scripts/install-hooks.js");
 	});
 });
 
