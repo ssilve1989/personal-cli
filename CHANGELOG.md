@@ -1,3 +1,9 @@
+## [0.6.1](https://github.com/ssilve1989/scli/compare/v0.6.0...v0.6.1) (2026-04-12)
+
+### Bug Fixes
+
+* **project:** generate commitlintrc and install packages when adding lefthook ([9afd622](https://github.com/ssilve1989/scli/commit/9afd6222c0adc1731ba7b61c40c39d337df72f2f))
+
 ## [0.6.0](https://github.com/ssilve1989/scli/compare/v0.5.0...v0.6.0) (2026-03-23)
 
 ### Features
