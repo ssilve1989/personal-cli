@@ -20,7 +20,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.12",
 		"@commitlint/cli": "^20.5.0",
-		"@commitlint/config-conventional": "^20.5.0",
+		"@commitlint/config-conventional": "^21.0.1",
 		"@semantic-release/changelog": "latest",
 		"@semantic-release/git": "latest",
 		"@types/bun": "1.3.12",
